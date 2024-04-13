@@ -14,7 +14,6 @@ const thresholdSpeed = 4;
 const diffSpeed = maxSpeed - minSpeed;
 
 const temperatureMax = 70;
-const temperatureTarget = 56;
 const temperatureMin = 40;
 
 const id = '0';
@@ -137,6 +136,35 @@ async function setSpeed(id, speed) {
 		console.error('failed to set speed', error);
 	}
 }
+/**
+ * calculate duty cycle based on temperature and current duty cycle in a duty cycle range of 0-100
+ * @param {number} temperature
+ * @param {number} temperatureMax
+ */
+function calculateDutyCycle(temperature, temperatureMax) {
+	if (temperature >= temperatureMax) {
+		return 100;
+	}
+
+	if (temperature <= temperatureMin) {
+		return 0;
+	}
+
+	const temp = Math.floor(
+		((temperature - temperatureMin) / (temperatureMax - temperatureMin)) * 100,
+	);
+
+	return temp;
+}
+
+/**
+ * map duty cycle to speed
+ * @param {number} dutyCycle
+ * @returns {number}
+ */
+function mapDutyCycleToSpeed(dutyCycle) {
+	return Math.floor((dutyCycle / 100) * diffSpeed + minSpeed);
+}
 
 /**
  * @param {number} edge
@@ -150,10 +178,9 @@ function getNewSpeed(edge, junction, memory, speed) {
 	let newSpeed = speed;
 
 	if (temperature > temperatureMin) {
-		const diff = temperature - temperatureTarget;
-		const ratio = diff / (temperatureMax - temperatureTarget);
+		const newDutyCycle = calculateDutyCycle(temperature, temperatureMax);
+		newSpeed = mapDutyCycleToSpeed(newDutyCycle);
 
-		newSpeed = Math.max(minSpeed, maxSpeed - Math.abs(Math.floor(diffSpeed * ratio)));
 		if (isCloseTo(newSpeed, speed, thresholdSpeed)) {
 			console.debug(`speed:${newSpeed} near:${speed}`);
 			return null;
@@ -202,9 +229,9 @@ async function main() {
  * @returns {Promise<void>}
  */
 async function test() {
-	const edge = 50;
-	const junction = 50;
-	const memory = 50;
+	const edge = 40;
+	const junction = 40;
+	const memory = 40;
 	const speed = 100;
 
 	const newSpeed = getNewSpeed(edge, junction, memory, speed);
