@@ -176,4 +176,5 @@ dist
 
 # models
 
-models/
+models/*
+!models/.gitkeep

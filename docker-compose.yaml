@@ -10,6 +10,7 @@ services:
       retries: 5
     ports:
       - 8188:8080
+    restart: unless-stopped
     environment:
       #- DEBUG=true
       - HSA_OVERRIDE_GFX_VERSION=9.0.0
