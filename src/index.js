@@ -143,7 +143,7 @@ async function main() {
 		console.log('failed to set fan speed');
 	} else {
 		console.log(`set fan speed to ${newFanSpeed}`);
-		const text = trimCliOutput(fanSpeedResult.text());
+		const text = filterCliOutput(fanSpeedResult.text());
 		console.log(text);
 	}
 }
