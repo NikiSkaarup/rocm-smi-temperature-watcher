@@ -3,7 +3,7 @@ Description=Service that watches gpu temperatures and adjusts the fan speed, whe
 
 [Service]
 Type=simple
-ExecStart=/home/nws/.bun/bin/bun run start
+ExecStart=/home/nws/.bun/bin/bun --watch run src/index.js
 KillMode=process
 Restart=always
 IgnoreSIGPIPE=no

@@ -3,8 +3,8 @@
   "module": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "bun run src/index.js",
-    "dev": "bun dev src/index.js",
+    "start": "bun --watch run src/index.js",
+    "dev": "bun src/index.js",
     "lint": "biome lint .",
     "lint:fix": "biome lint --apply .",
     "format": "biome format --write .",
