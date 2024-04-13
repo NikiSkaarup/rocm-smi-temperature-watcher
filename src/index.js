@@ -129,7 +129,7 @@ async function main() {
 		console.error(`temp is negative max:${maxSpeed}`);
 		newSpeed = maxSpeed;
 	} else {
-		console.debug(`temp:${temperature} under ${temperatureMin}c min:${minSpeed}`);
+		console.debug(`temp:${temperature}c under ${temperatureMin}c min:${minSpeed}`);
 		newSpeed = minSpeed;
 	}
 
