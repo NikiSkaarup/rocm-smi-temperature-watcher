@@ -142,14 +142,12 @@ async function main() {
 	}
 
 	console.log(`setting fan speed to ${newFanSpeed}`);
-	const fanSpeedResult = await $`rocm-smi -d 0 --setfan ${newFanSpeed}`;
-
-	if (fanSpeedResult.exitCode !== 0) {
-		console.log('failed to set fan speed');
-	} else {
+	try {
+		const text = filterCliOutput(await $`rocm-smi -d ${id} --setfan ${newFanSpeed}`.text());
 		console.log(`set fan speed to ${newFanSpeed}`);
-		const text = filterCliOutput(fanSpeedResult.text());
 		console.log(text);
+	} catch (error) {
+		console.error('failed to set fan speed', error);
 	}
 }
 
