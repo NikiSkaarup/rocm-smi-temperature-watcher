@@ -98,30 +98,65 @@ function filterCliOutput(text) {
 		.replaceAll('\n\n', '');
 }
 
+/**
+ * @param {number} a
+ * @param {number} b
+ * @param {number} threshold
+ * @returns {boolean}
+ */
 function isCloseTo(a, b, threshold) {
 	return Math.abs(a - b) < threshold;
 }
 
-async function main() {
+/**
+ * @param {string} id
+ * @returns {Promise<{edge, junction, memory, speed}>}
+ */
+async function getData(id) {
 	const text = filterCliOutput(await $`rocm-smi -d ${id} -t -f`.text());
 
 	const edge = extractNumber(text, keyEdge, '\n');
 	const junction = extractNumber(text, keyJunction, '\n');
 	const memory = extractNumber(text, keyMemory, '\n');
 	const speed = extractNumber(text, keySpeed, keyEndSpeed, maxSpeed);
+
+	return { edge, junction, memory, speed };
+}
+
+/**
+ * @param {string} id
+ * @param {number} speed
+ */
+async function setSpeed(id, speed) {
+	console.debug(`setting speed: ${speed}`);
+	try {
+		const text = filterCliOutput(await $`rocm-smi -d ${id} --setfan ${speed}`.text());
+		console.log(`set speed: ${speed}`);
+		console.debug(text);
+	} catch (error) {
+		console.error('failed to set speed', error);
+	}
+}
+
+/**
+ * @param {number} edge
+ * @param {number} junction
+ * @param {number} memory
+ * @param {number} speed
+ * @returns {number | null}
+ */
+function getNewSpeed(edge, junction, memory, speed) {
+	const temperature = Math.max(edge, junction, memory);
 	let newSpeed = speed;
 
-	console.debug(`edge:${edge}c junction:${junction}c memory:${memory}c speed:${speed}`);
-
-	const temperature = Math.max(edge, junction, memory);
 	if (temperature > temperatureMin) {
 		const diff = temperature - temperatureTarget;
 		const ratio = diff / (temperatureMax - temperatureTarget);
 
-		newSpeed = Math.max(minSpeed, maxSpeed - Math.floor(diffSpeed * ratio));
+		newSpeed = Math.max(minSpeed, maxSpeed - Math.abs(Math.floor(diffSpeed * ratio)));
 		if (isCloseTo(newSpeed, speed, thresholdSpeed)) {
 			console.debug(`speed:${newSpeed} near:${speed}`);
-			return;
+			return null;
 		}
 
 		console.debug(`temp:${temperature}c new speed:${newSpeed}`);
@@ -141,17 +176,40 @@ async function main() {
 		newSpeed = maxSpeed;
 	} else if (isCloseTo(newSpeed, speed, thresholdSpeed)) {
 		console.debug(`speed:${newSpeed} near:${speed}`);
-		return;
+		return null;
 	}
 
-	console.debug(`setting speed: ${newSpeed}`);
-	try {
-		const text = filterCliOutput(await $`rocm-smi -d ${id} --setfan ${newSpeed}`.text());
-		console.log(`set speed: ${newSpeed}`);
-		console.debug(text);
-	} catch (error) {
-		console.error('failed to set speed', error);
-	}
+	return newSpeed;
+}
+
+/**
+ * @returns {Promise<void>}
+ */
+async function main() {
+	const { edge, junction, memory, speed } = await getData(id);
+
+	console.debug(`edge:${edge}c junction:${junction}c memory:${memory}c speed:${speed}`);
+
+	const newSpeed = getNewSpeed(edge, junction, memory, speed);
+
+	if (newSpeed === null) return;
+
+	console.log(`setting speed: ${newSpeed}`);
+	await setSpeed(id, newSpeed);
+}
+
+/**
+ * @returns {Promise<void>}
+ */
+async function test() {
+	const edge = 50;
+	const junction = 50;
+	const memory = 50;
+	const speed = 100;
+
+	const newSpeed = getNewSpeed(edge, junction, memory, speed);
+
+	console.log(`setting speed: ${newSpeed}`);
 }
 
 const interval = 1000;
@@ -170,6 +228,7 @@ async function job() {
 
 	try {
 		await main();
+		// await test();
 	} catch (e) {
 		console.error(e);
 	} finally {
