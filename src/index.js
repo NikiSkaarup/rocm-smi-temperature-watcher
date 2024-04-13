@@ -68,20 +68,25 @@ function extractNumber(text, key, keyEnd, defaultValue = -1) {
 function filterCliOutput(text) {
 	return text
 		.replaceAll(`GPU[${id}]		: `, '')
-		.replace(
+		.replaceAll(`GPU[${id}]                : `, '')
+		.replaceAll(
 			'============================ ROCm System Management Interface ============================\n',
 			'',
 		)
-		.replace(
+		.replaceAll(
 			'====================================== Temperature =======================================\n',
 			'',
 		)
-		.replace(
+		.replaceAll(
 			'=================================== Current Fan Metric ===================================\n',
 			'',
 		)
-		.replace(
+		.replaceAll(
 			'================================== End of ROCm SMI Log ===================================\n',
+			'',
+		)
+		.replaceAll(
+			'=================================== Set GPU Fan Speed ====================================\n',
 			'',
 		)
 		.replaceAll(
