@@ -1,0 +1,58 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "organizeImports": {
+    "enabled": true
+  },
+  "overrides": [
+    {
+      "include": ["*.svelte"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useConst": "off",
+            "useImportType": "off"
+          }
+        }
+      }
+    }
+  ],
+  "linter": {
+    "enabled": true,
+    "ignore": ["node_modules/**", "./.svelte-kit", "*.svelte", "./build"]
+  },
+  "javascript": {
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    },
+    "formatter": {
+      "arrowParentheses": "always",
+      "quoteProperties": "preserve",
+      "semicolons": "always",
+      "trailingComma": "all",
+      "indentStyle": "tab",
+      "quoteStyle": "single"
+    }
+  },
+  "json": {
+    "formatter": {
+      "indentStyle": "space"
+    }
+  },
+  "vcs": {
+    "clientKind": "git",
+    "enabled": false,
+    "root": "./"
+  },
+  "files": {
+    "maxSize": 9128312873
+  },
+  "formatter": {
+    "enabled": true,
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "formatWithErrors": true,
+    "lineWidth": 100,
+    "indentStyle": "space",
+    "ignore": ["node_modules/**", "./.svelte-kit", "*.svelte", "./build"]
+  }
+}

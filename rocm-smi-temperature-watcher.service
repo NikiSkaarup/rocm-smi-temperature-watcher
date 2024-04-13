@@ -1,0 +1,15 @@
+[Unit]
+Description=Service that watches gpu temperatures and adjusts the fan speed, when the gpu does not adjust it by itself
+
+[Service]
+Type=simple
+ExecStart=/home/nws/.bun/bin/bun run start
+KillMode=process
+Restart=always
+IgnoreSIGPIPE=no
+ExecReload=/bin/kill -SIGHUP $MAINPID
+User=root
+WorkingDirectory=/home/nws/dev/rocm-smi-temperature-watcher
+
+[Install]
+WantedBy=multi-user.target

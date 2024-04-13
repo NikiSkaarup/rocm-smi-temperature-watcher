@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  api:
+    image: localai/localai:latest-aio-gpu-hipblas
+    #image: localai/localai:latest-aio-cpu
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8188/readyz"]
+      interval: 1m
+      timeout: 20m
+      retries: 5
+    ports:
+      - 8188:8080
+    environment:
+      #- DEBUG=true
+      - HSA_OVERRIDE_GFX_VERSION=9.0.0
+      - HIP_VISIBLE_DEVICES=0
+      # ...
+    volumes:
+      - ./models:/build/models:cached
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/kfd:/dev/kfd
