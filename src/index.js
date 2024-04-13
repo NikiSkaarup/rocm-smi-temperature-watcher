@@ -9,11 +9,13 @@ const keyEndFan = '(';
 
 const minFanSpeed = 58;
 const maxFanSpeed = 255;
+const thresholdFanSpeed = 4;
 
 const diffFanSpeed = maxFanSpeed - minFanSpeed;
 
 const temperatureMax = 70;
 const temperatureTarget = 56;
+const temperatureMin = 40;
 
 const id = '0';
 
@@ -96,6 +98,10 @@ function filterCliOutput(text) {
 		.replaceAll('\n\n', '');
 }
 
+function isCloseTo(a, b, threshold) {
+	return Math.abs(a - b) < threshold;
+}
+
 async function main() {
 	const text = filterCliOutput(await $`rocm-smi -d ${id} -t -f`.text());
 	// console.debug(text);
@@ -109,13 +115,13 @@ async function main() {
 	console.debug(`edge: ${edge}, junction: ${junction}, memory: ${memory}, fanSpeed: ${fanSpeed}`);
 
 	const temperature = Math.max(edge, junction, memory);
-	if (temperature > 40) {
+	if (temperature > temperatureMin) {
 		const diff = temperature - temperatureTarget;
 		const ratio = diff / (temperatureMax - temperatureTarget);
 
 		newFanSpeed = Math.max(minFanSpeed, maxFanSpeed - Math.floor(diffFanSpeed * ratio));
-		if (newFanSpeed === fanSpeed) {
-			console.debug(`fan speed is already at ${fanSpeed}`);
+		if (isCloseTo(newFanSpeed, fanSpeed, thresholdFanSpeed)) {
+			console.debug(`fan speed is close to ${fanSpeed}`);
 			return;
 		}
 
@@ -136,8 +142,8 @@ async function main() {
 	} else if (newFanSpeed > maxFanSpeed) {
 		console.debug(`fan speed is higher than max fan speed, setting fan speed to ${maxFanSpeed}`);
 		newFanSpeed = maxFanSpeed;
-	} else if (newFanSpeed === fanSpeed) {
-		console.debug(`fan speed is already at ${fanSpeed}`);
+	} else if (isCloseTo(newFanSpeed, fanSpeed, thresholdFanSpeed)) {
+		console.debug(`fan speed is close to ${fanSpeed}`);
 		return;
 	}
 
