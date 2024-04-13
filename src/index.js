@@ -93,7 +93,7 @@ function filterCliOutput(text) {
 
 async function main() {
 	const text = filterCliOutput(await $`rocm-smi -d ${id} -t -f`.text());
-	console.log(text);
+	// console.debug(text);
 
 	const edge = extractNumber(text, keyEdge, '\n');
 	const junction = extractNumber(text, keyJunction, '\n');
@@ -109,6 +109,10 @@ async function main() {
 		const ratio = diff / (temperatureMax - temperatureTarget);
 
 		newFanSpeed = Math.max(minFanSpeed, maxFanSpeed - Math.floor(diffFanSpeed * ratio));
+		if (newFanSpeed === fanSpeed) {
+			console.log(`fan speed is already at ${fanSpeed}`);
+			return;
+		}
 
 		console.log(
 			`temperature: ${temperature}, diff: ${diff}, ratio: ${ratio}, newFanSpeed: ${newFanSpeed}`,

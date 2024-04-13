@@ -13,6 +13,7 @@ TODO:
 
 - Setup guide
 - Implement proper fan curves, that can be adjusted from a json file
+- Spin up fast, and spin down slow when temps drop, slowly reduce fan speed
 
 To install dependencies:
 
