@@ -106,7 +106,7 @@ async function main() {
 	const fanSpeed = extractNumber(text, keyFan, keyEndFan, maxFanSpeed);
 	let newFanSpeed = fanSpeed;
 
-	console.log(`edge: ${edge}, junction: ${junction}, memory: ${memory}, fanSpeed: ${fanSpeed}`);
+	console.verbose(`edge: ${edge}, junction: ${junction}, memory: ${memory}, fanSpeed: ${fanSpeed}`);
 
 	const temperature = Math.max(edge, junction, memory);
 	if (temperature > 40) {
@@ -115,37 +115,37 @@ async function main() {
 
 		newFanSpeed = Math.max(minFanSpeed, maxFanSpeed - Math.floor(diffFanSpeed * ratio));
 		if (newFanSpeed === fanSpeed) {
-			console.log(`fan speed is already at ${fanSpeed}`);
+			console.debug(`fan speed is already at ${fanSpeed}`);
 			return;
 		}
 
-		console.log(
+		console.verbose(
 			`temperature: ${temperature}, diff: ${diff}, ratio: ${ratio}, newFanSpeed: ${newFanSpeed}`,
 		);
 	} else if (Math.min(edge, junction, memory) < 0) {
-		console.log('failed to get temperature, setting fan speed to max fan speed');
+		console.error('failed to get temperature, setting fan speed to max fan speed');
 		newFanSpeed = maxFanSpeed;
 	} else {
-		console.log('temperature is lower than 40, setting fan speed to min fan speed');
+		console.debug('temperature is lower than 40, setting fan speed to min fan speed');
 		newFanSpeed = minFanSpeed;
 	}
 
 	if (newFanSpeed < minFanSpeed) {
-		console.log(`fan speed is lower than min fan speed, setting fan speed to ${minFanSpeed}`);
+		console.debug(`fan speed is lower than min fan speed, setting fan speed to ${minFanSpeed}`);
 		newFanSpeed = minFanSpeed;
 	} else if (newFanSpeed > maxFanSpeed) {
-		console.log(`fan speed is higher than max fan speed, setting fan speed to ${maxFanSpeed}`);
+		console.debug(`fan speed is higher than max fan speed, setting fan speed to ${maxFanSpeed}`);
 		newFanSpeed = maxFanSpeed;
 	} else if (newFanSpeed === fanSpeed) {
-		console.log(`fan speed is already at ${fanSpeed}`);
+		console.verbose(`fan speed is already at ${fanSpeed}`);
 		return;
 	}
 
-	console.log(`setting fan speed to ${newFanSpeed}`);
+	console.verbose(`setting fan speed to ${newFanSpeed}`);
 	try {
 		const text = filterCliOutput(await $`rocm-smi -d ${id} --setfan ${newFanSpeed}`.text());
 		console.log(`set fan speed to ${newFanSpeed}`);
-		console.log(text);
+		console.verbose(text);
 	} catch (error) {
 		console.error('failed to set fan speed', error);
 	}
