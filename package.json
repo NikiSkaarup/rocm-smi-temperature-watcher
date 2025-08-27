@@ -11,11 +11,11 @@
     "fmt": "biome format --write ."
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/bun": "latest"
+    "@biomejs/biome": "^2.2.2",
+    "@types/bun": "^1.2.21"
   },
   "peerDependencies": {
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "trustedDependencies": ["@biomejs/biome"]
 }
